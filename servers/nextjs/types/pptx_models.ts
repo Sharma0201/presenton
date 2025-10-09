@@ -313,6 +313,7 @@ export interface PptxPictureBoxModel extends PptxShapeModel {
   shape?: PptxBoxShapeEnum;
   object_fit?: PptxObjectFitModel;
   picture: PptxPictureModel;
+  clip_path?: string;
 }
 
 export interface PptxConnectorModel extends PptxShapeModel {

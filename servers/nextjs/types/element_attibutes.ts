@@ -73,6 +73,7 @@ export interface ElementAttributes {
     sepia?: number;
     opacity?: number;
   };
+  clipPath?: string;
 }
 
 export interface SlideAttributesResult {

@@ -26,6 +26,8 @@ interface GetAllChildElementsAttributesArgs {
   inheritedBorderRadius?: number[];
   inheritedZIndex?: number;
   inheritedOpacity?: number;
+  isSvgChild?: boolean;
+  inheritedClipPath?: string;
   screenshotsDir: string;
 }
 
@@ -132,12 +134,38 @@ async function postProcessSlidesAttributes(
 ) {
   for (const [index, slideAttributes] of slidesAttributes.entries()) {
     for (const element of slideAttributes.elements) {
-      if (element.should_screenshot) {
+      if (element.should_screenshot && element.element) {
         const screenshotPath = await screenshotElement(element, screenshotsDir);
         element.imageSrc = screenshotPath;
-        element.should_screenshot = false;
         element.objectFit = "cover";
+        element.should_screenshot = false;
         element.element = undefined;
+      } else if (
+        element.tagName === "img" &&
+        element.imageSrc &&
+        isSvgSource(element.imageSrc) &&
+        element.position?.width &&
+        element.position?.height
+      ) {
+        try {
+          const pngBytes = await rasterizeSvgFromSource(
+            element.imageSrc,
+            Math.round(element.position.width),
+            Math.round(element.position.height)
+          );
+          const screenshotPath = path.join(
+            screenshotsDir,
+            `${uuidv4()}.png`
+          ) as `${string}.png`;
+          fs.writeFileSync(screenshotPath, pngBytes);
+          element.imageSrc = screenshotPath;
+          if (!element.objectFit) {
+            element.objectFit = "contain";
+          }
+        } catch (e) {
+          // If conversion fails, leave the original src as-is
+          console.warn("[postProcess] Failed to convert SVG to PNG", e);
+        }
       }
     }
     slideAttributes.speakerNote = speakerNotes[index];
@@ -222,17 +250,126 @@ const convertSvgToPng = async (element_attibutes: ElementAttributes) => {
 
       return el.outerHTML;
     })) || "";
+  const targetWidth = Math.max(
+    1,
+    Math.round(element_attibutes.position!.width!)
+  );
+  const targetHeight = Math.max(
+    1,
+    Math.round(element_attibutes.position!.height!)
+  );
 
-  const svgBuffer = Buffer.from(svgHtml);
-  const pngBuffer = await sharp(svgBuffer)
-    .resize(
-      Math.round(element_attibutes.position!.width!),
-      Math.round(element_attibutes.position!.height!)
-    )
+  // Ensure root <svg> has explicit width/height attributes matching element size
+  let adjustedSvgHtml = svgHtml;
+  try {
+    const svgOpenTagMatch = adjustedSvgHtml.match(/<svg\b[^>]*>/i);
+    if (svgOpenTagMatch) {
+      let svgOpenTag = svgOpenTagMatch[0];
+
+      // Replace or add width
+      if (/\bwidth\s*=\s*["'][^"']*["']/i.test(svgOpenTag)) {
+        svgOpenTag = svgOpenTag.replace(
+          /\bwidth\s*=\s*["'][^"']*["']/i,
+          `width="${targetWidth}"`
+        );
+      } else {
+        svgOpenTag = svgOpenTag.replace(
+          /^<svg\b/i,
+          `<svg width="${targetWidth}"`
+        );
+      }
+
+      // Replace or add height
+      if (/\bheight\s*=\s*["'][^"']*["']/i.test(svgOpenTag)) {
+        svgOpenTag = svgOpenTag.replace(
+          /\bheight\s*=\s*["'][^"']*["']/i,
+          `height="${targetHeight}"`
+        );
+      } else {
+        svgOpenTag = svgOpenTag.replace(
+          /^<svg\b/i,
+          `<svg height="${targetHeight}"`
+        );
+      }
+
+      adjustedSvgHtml = adjustedSvgHtml.replace(svgOpenTagMatch[0], svgOpenTag);
+    }
+  } catch {}
+
+  const svgBuffer = Buffer.from(adjustedSvgHtml);
+  const pngBuffer = await sharp(svgBuffer, {
+    density: 500,
+  })
+    .resize(targetWidth * 2, targetHeight * 2)
     .toFormat("png")
     .toBuffer();
   return pngBuffer;
 };
+
+function isSvgSource(src: string): boolean {
+  const lower = src.toLowerCase();
+  if (lower.startsWith("data:image/svg+xml")) return true;
+  try {
+    const u = new URL(src);
+    const pathname = u.pathname.toLowerCase();
+    // Direct file extensions
+    if (pathname.endsWith(".svg") || pathname.endsWith(".svgz")) return true;
+
+    // Known proxy-style endpoints that return SVG (e.g. presenton update-svg service)
+    // Example: https://presenton.ai/api/update-svg?url=...&color=...
+    if (pathname.includes("update-svg")) return true;
+
+    // If an inner URL is provided as a query parameter, check it too
+    const innerUrl = u.searchParams.get("url");
+    if (innerUrl) {
+      try {
+        const inner = new URL(innerUrl);
+        const innerPath = inner.pathname.toLowerCase();
+        if (innerPath.endsWith(".svg") || innerPath.endsWith(".svgz"))
+          return true;
+      } catch {
+        // ignore invalid inner URL
+      }
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+async function rasterizeSvgFromSource(
+  src: string,
+  width: number,
+  height: number
+): Promise<Uint8Array> {
+  let svgBuffer: Buffer;
+  const lower = src.toLowerCase();
+
+  if (lower.startsWith("data:image/svg+xml")) {
+    const commaIndex = src.indexOf(",");
+    const meta = src.substring(0, commaIndex);
+    const data = src.substring(commaIndex + 1);
+    if (meta.includes(";base64")) {
+      svgBuffer = Buffer.from(data, "base64");
+    } else {
+      svgBuffer = Buffer.from(decodeURIComponent(data), "utf8");
+    }
+  } else {
+    const res = await fetch(src);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch SVG: ${res.status} ${res.statusText}`);
+    }
+    const ab = await res.arrayBuffer();
+    svgBuffer = Buffer.from(ab);
+  }
+
+  const pngBuffer = await sharp(svgBuffer, { density: 500 })
+    .resize(width * 2, height * 2)
+    .png()
+    .toBuffer();
+  return new Uint8Array(pngBuffer);
+}
 
 async function getSlidesAttributes(
   slides: ElementHandle<Element>[],
@@ -278,6 +415,8 @@ async function getAllChildElementsAttributes({
   inheritedBorderRadius,
   inheritedZIndex,
   inheritedOpacity,
+  isSvgChild,
+  inheritedClipPath,
   screenshotsDir,
 }: GetAllChildElementsAttributesArgs): Promise<SlideAttributesResult> {
   if (!rootRect) {
@@ -306,6 +445,14 @@ async function getAllChildElementsAttributes({
     ) {
       continue;
     }
+    if (isSvgChild && ["text", "g"].includes(attributes.tagName)) {
+      continue;
+    }
+
+    // Special Recharts case
+    if (attributes.className?.includes("recharts-tooltip-wrapper")) {
+      continue;
+    }
 
     if (
       inheritedFont &&
@@ -320,9 +467,6 @@ async function getAllChildElementsAttributes({
     }
     if (inheritedBorderRadius && !attributes.borderRadius) {
       attributes.borderRadius = inheritedBorderRadius;
-    }
-    if (inheritedZIndex !== undefined && attributes.zIndex === 0) {
-      attributes.zIndex = inheritedZIndex;
     }
     if (
       inheritedOpacity !== undefined &&
@@ -348,22 +492,33 @@ async function getAllChildElementsAttributes({
     if (
       attributes.position === undefined ||
       attributes.position.width === undefined ||
-      attributes.position.height === undefined ||
-      attributes.position.width === 0 ||
-      attributes.position.height === 0
+      attributes.position.height === undefined
+    ) {
+      continue;
+    }
+    if (
+      attributes.tagName === "svg" &&
+      (attributes.position.width === 0 || attributes.position.height === 0)
     ) {
       continue;
     }
 
-    // If element is paragraph and contains only inline formatting tags, don't go deeper
-    if (attributes.tagName === "p") {
+    // If element is paragraph or div and contains only inline formatting tags, don't go deeper
+    if (attributes.tagName === "p" || attributes.tagName === "div") {
       const innerElementTagNames = await childElementHandle.evaluate((el) => {
         return Array.from(el.querySelectorAll("*")).map((e) =>
           e.tagName.toLowerCase()
         );
       });
 
-      const allowedInlineTags = new Set(["strong", "u", "em", "code", "s"]);
+      const allowedInlineTags = new Set([
+        "strong",
+        "u",
+        "em",
+        "code",
+        "s",
+        "br",
+      ]);
       const hasOnlyAllowedInlineTags = innerElementTagNames.every((tag) =>
         allowedInlineTags.has(tag)
       );
@@ -402,6 +557,8 @@ async function getAllChildElementsAttributes({
       inheritedBorderRadius: attributes.borderRadius || inheritedBorderRadius,
       inheritedZIndex: attributes.zIndex || inheritedZIndex,
       inheritedOpacity: attributes.opacity || inheritedOpacity,
+      isSvgChild: attributes.tagName === "svg" || isSvgChild,
+      inheritedClipPath: attributes.clipPath || inheritedClipPath,
       screenshotsDir,
     });
     allResults.push(
@@ -464,14 +621,19 @@ async function getAllChildElementsAttributes({
   if (depth === 0) {
     const sortedElements = filteredResults
       .sort((a, b) => {
-        const zIndexA = a.attributes.zIndex || 0;
-        const zIndexB = b.attributes.zIndex || 0;
+        // Use actual zIndex values, including negatives and zero
+        const zIndexA =
+          typeof a.attributes.zIndex === "number" ? a.attributes.zIndex : 0;
+        const zIndexB =
+          typeof b.attributes.zIndex === "number" ? b.attributes.zIndex : 0;
 
         if (zIndexA === zIndexB) {
-          return a.depth - b.depth;
+          // If zIndex is equal, preserve original order (do not change positions)
+          return 0;
         }
 
-        return zIndexB - zIndexA;
+        // Lower zIndex first, higher zIndex last
+        return zIndexA - zIndexB;
       })
       .map(({ attributes }) => {
         if (
@@ -867,7 +1029,7 @@ async function getElementAttributes(
       const fontFamily = computedStyles.fontFamily;
       const fontStyle = computedStyles.fontStyle;
 
-      let fontName = undefined;
+      let fontName: string | undefined;
       if (fontFamily !== "initial") {
         const firstFont = fontFamily.split(",")[0].trim().replace(/['"]/g, "");
         fontName = firstFont;
@@ -1100,6 +1262,14 @@ async function getElementAttributes(
       return Object.keys(filters).length > 0 ? filters : undefined;
     }
 
+    function cleanInnerText(text: string) {
+      return text
+        .replace(/\n/g, "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .replace(/<br\s*\/?\>/gi, "\n");
+    }
+
     function parseElementAttributes(el: Element) {
       let tagName = el.tagName.toLowerCase();
 
@@ -1121,18 +1291,32 @@ async function getElementAttributes(
 
       const padding = parsePadding(computedStyles);
 
-      const innerText = hasOnlyTextNodes(el)
+      let innerText = hasOnlyTextNodes(el)
         ? el.textContent || undefined
         : undefined;
+      if (innerText) {
+        innerText = cleanInnerText(innerText);
+      }
 
       const zIndex = parseInt(computedStyles.zIndex);
       const zIndexValue = isNaN(zIndex) ? 0 : zIndex;
 
-      const textAlign = computedStyles.textAlign as
+      let textAlign = computedStyles.textAlign as
         | "left"
         | "center"
         | "right"
         | "justify";
+
+      // If display is flex and justify-content is center, force textAlign to center
+      if (
+        computedStyles.display === "flex" &&
+        computedStyles.justifyContent === "center"
+      ) {
+        textAlign = "center";
+      }
+      if (computedStyles.placeItems === "center") {
+        textAlign = "center";
+      }
       const objectFit = computedStyles.objectFit as
         | "contain"
         | "cover"
@@ -1155,6 +1339,11 @@ async function getElementAttributes(
 
       const opacity = parseFloat(computedStyles.opacity);
       const elementOpacity = isNaN(opacity) ? undefined : opacity;
+
+      const clipPath =
+        computedStyles.clipPath === "none"
+          ? undefined
+          : computedStyles.clipPath;
 
       return {
         tagName: tagName,
@@ -1188,6 +1377,7 @@ async function getElementAttributes(
         should_screenshot: false,
         element: undefined,
         filters: filters,
+        clipPath: clipPath,
       };
     }
 
