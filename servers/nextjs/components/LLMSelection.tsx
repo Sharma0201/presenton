@@ -118,20 +118,20 @@ export default function LLMProviderSelection({
   }, []);
 
   return (
-    <div className="h-full flex flex-col mt-10">
+    <div className="h-full flex flex-col mt-6">
       {/* Provider Selection - Fixed Header */}
-      <div className="p-2 rounded-2xl border border-gray-200">
+      <div className="p-1.5 rounded-xl border-2 border-gray-200 bg-white shadow-sm">
         <Tabs
           value={llmConfig.LLM || "openai"}
           onValueChange={handleProviderChange}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-5 bg-transparent h-10">
-            <TabsTrigger value="openai">OpenAI</TabsTrigger>
-            <TabsTrigger value="google">Google</TabsTrigger>
-            <TabsTrigger value="anthropic">Anthropic</TabsTrigger>
-            <TabsTrigger value="ollama">Ollama</TabsTrigger>
-            <TabsTrigger value="custom">Custom</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 bg-gray-50 h-12 rounded-lg p-1">
+            <TabsTrigger value="openai" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md font-medium">OpenAI</TabsTrigger>
+            <TabsTrigger value="google" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md font-medium">Google</TabsTrigger>
+            <TabsTrigger value="anthropic" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md font-medium">Anthropic</TabsTrigger>
+            <TabsTrigger value="ollama" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md font-medium">Ollama</TabsTrigger>
+            <TabsTrigger value="custom" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md font-medium">Custom</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -328,31 +328,37 @@ export default function LLMProviderSelection({
           })()}
 
         {/* Model Information */}
-        <div className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
+        <div className="mb-8 p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-100 shadow-sm">
           <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-500 mt-0.5" />
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Info className="w-5 h-5 text-blue-600" />
+            </div>
             <div>
-              <h3 className="text-sm font-medium text-blue-900 mb-1">
+              <h3 className="text-sm font-semibold text-blue-900 mb-1.5">
                 Selected Models
               </h3>
-              <p className="text-sm text-blue-700">
+              <p className="text-sm text-blue-800 leading-relaxed">
                 Using{" "}
-                {llmConfig.LLM === "ollama"
-                  ? llmConfig.OLLAMA_MODEL ?? "xxxxx"
-                  : llmConfig.LLM === "custom"
-                    ? llmConfig.CUSTOM_MODEL ?? "xxxxx"
-                    : llmConfig.LLM === "anthropic"
-                      ? llmConfig.ANTHROPIC_MODEL ?? "xxxxx"
-                      : llmConfig.LLM === "google"
-                        ? llmConfig.GOOGLE_MODEL ?? "xxxxx"
-                        : llmConfig.LLM === "openai"
-                          ? llmConfig.OPENAI_MODEL ?? "xxxxx"
-                          : "xxxxx"}{" "}
+                <span className="font-semibold text-blue-900">
+                  {llmConfig.LLM === "ollama"
+                    ? llmConfig.OLLAMA_MODEL ?? "xxxxx"
+                    : llmConfig.LLM === "custom"
+                      ? llmConfig.CUSTOM_MODEL ?? "xxxxx"
+                      : llmConfig.LLM === "anthropic"
+                        ? llmConfig.ANTHROPIC_MODEL ?? "xxxxx"
+                        : llmConfig.LLM === "google"
+                          ? llmConfig.GOOGLE_MODEL ?? "xxxxx"
+                          : llmConfig.LLM === "openai"
+                            ? llmConfig.OPENAI_MODEL ?? "xxxxx"
+                            : "xxxxx"}
+                </span>{" "}
                 for text generation and{" "}
-                {llmConfig.IMAGE_PROVIDER &&
-                  IMAGE_PROVIDERS[llmConfig.IMAGE_PROVIDER]
-                  ? IMAGE_PROVIDERS[llmConfig.IMAGE_PROVIDER].label
-                  : "xxxxx"}{" "}
+                <span className="font-semibold text-blue-900">
+                  {llmConfig.IMAGE_PROVIDER &&
+                    IMAGE_PROVIDERS[llmConfig.IMAGE_PROVIDER]
+                    ? IMAGE_PROVIDERS[llmConfig.IMAGE_PROVIDER].label
+                    : "xxxxx"}
+                </span>{" "}
                 for images
               </p>
             </div>

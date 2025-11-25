@@ -11,7 +11,7 @@ const marketSizeSlideSchema = z.object({
   title: z.string().min(3).max(15).default("Market Size").meta({
     description: "Main slide title",
   }),
-  companyName: z.string().min(2).max(50).default("presenton").meta({
+  companyName: z.string().min(2).max(50).default("Company Name").meta({
     description: "Company name displayed in header",
   }),
   date: z.string().min(5).max(50).default("June 13, 2038").meta({

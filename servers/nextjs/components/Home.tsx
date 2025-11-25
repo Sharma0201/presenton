@@ -145,12 +145,19 @@ export default function Home() {
     <div className="h-screen bg-gradient-to-b font-instrument_sans from-gray-50 to-white flex flex-col overflow-hidden">
       <main className="flex-1 container mx-auto px-4 max-w-3xl overflow-hidden flex flex-col">
         {/* Branding Header */}
-        <div className="text-center mb-2 mt-4 flex-shrink-0">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <img src="/Logo.png" alt="Presenton Logo" className="h-12" />
+        <div className="text-center mb-6 mt-8 flex-shrink-0">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+              </svg>
+            </div>
           </div>
-          <p className="text-gray-600 text-sm">
-            Open-source AI presentation generator
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+            Presentation Agent
+          </h1>
+          <p className="text-gray-600 text-base">
+            AI-powered presentation generator for professionals
           </p>
         </div>
 
@@ -239,20 +246,20 @@ export default function Home() {
       )}
 
       {/* Fixed Bottom Button */}
-      <div className="flex-shrink-0 bg-white border-t border-gray-200 p-4">
+      <div className="flex-shrink-0 bg-gradient-to-t from-white to-gray-50/50 border-t border-gray-200 p-6">
         <div className="container mx-auto max-w-3xl">
           <button
             onClick={handleSaveConfig}
             disabled={buttonState.isDisabled}
-            className={`w-full font-semibold py-3 px-4 rounded-lg transition-all duration-500 ${buttonState.isDisabled
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-200"
-              } text-white`}
+            className={`w-full font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg ${buttonState.isDisabled
+              ? "bg-gray-400 cursor-not-allowed opacity-60"
+              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl hover:scale-[1.02] focus:ring-4 focus:ring-blue-300"
+              } text-white text-base`}
           >
             {buttonState.isLoading ? (
               <div className="flex items-center justify-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {buttonState.text}
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>{buttonState.text}</span>
               </div>
             ) : (
               buttonState.text

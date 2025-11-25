@@ -1,7 +1,7 @@
 [project]
-name = "presenton-backend"
+name = "presentation-agent-backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Presentation Agent - AI-powered presentation generator backend API"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [

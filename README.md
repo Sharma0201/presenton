@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="readme_assets/images/presenton-logo.png" height="90" alt="Presenton Logo" />
+  <img src="readme_assets/images/presenton-logo.png" height="90" alt="Presentation Agent Logo" />
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@
 # Open-Source AI Presentation Generator and API (Gamma, Beautiful AI, Decktopus Alternative)
 
 
-**Presenton** is an open-source application for generating presentations with AI — all running locally on your device. Stay in control of your data and privacy while using models like OpenAI and Gemini, or use your own hosted models through Ollama.
+**Presentation Agent** is an open-source application for generating presentations with AI — all running locally on your device. Stay in control of your data and privacy while using models like OpenAI and Gemini, or use your own hosted models through Ollama.
 
 __✨ Now, generate presentations with your existing PPTX file! Just upload your presentation file to create template design and then use that template to generate on brand and on design presentation on any topic.__
 
@@ -27,7 +27,7 @@ __✨ Now, generate presentations with your existing PPTX file! Just upload your
 > For enterprise use, custom deployments, or partnership opportunities, contact us at **[suraj@presenton.ai](mailto:suraj@presenton.ai)**.
 
 > [!IMPORTANT]
-> Like Presenton? A ⭐ star shows your support and encourages us to keep building!
+> Like Presentation Agent? A ⭐ star shows your support and encourages us to keep building!
 
 > [!TIP]
 > For detailed setup guides, API documentation, and advanced configuration options, visit our **[Official Documentation](https://docs.presenton.ai)**
@@ -35,7 +35,7 @@ __✨ Now, generate presentations with your existing PPTX file! Just upload your
 
 ## ✨ More Freedom with AI Presentations
 
-Presenton gives you complete control over your AI presentation workflow. Choose your models, customize your experience, and keep your data private.
+Presentation Agent gives you complete control over your AI presentation workflow. Choose your models, customize your experience, and keep your data private.
 
 * ✅ **Custom Templates & Themes** — Create unlimited presentation designs with HTML and Tailwind CSS
 * ✅ **AI Template Generation** — Create presentation templates from existing Powerpoint documents.
@@ -53,15 +53,15 @@ Presenton gives you complete control over your AI presentation workflow. Choose 
 * ✅ **Fully Open-Source** — Apache 2.0 licensed, inspect, modify, and contribute
 * ✅ **Docker Ready** — One-command deployment with GPU support for local models
 
-## Presenton Cloud
+## Presentation Agent Cloud
 <a href="https://presenton.ai" target="_blank" align="center">
-  
-  <img src="readme_assets/cloud-banner.png" height="350" alt="Presenton Logo" />
+
+  <img src="readme_assets/cloud-banner.png" height="350" alt="Presentation Agent Cloud" />
 </a>
 
-## Running Presenton Docker
+## Running Presentation Agent with Docker
 
-#### 1. Start Presenton
+#### 1. Start Presentation Agent
 
 ##### Linux/MacOS (Bash/Zsh Shell):
 ```bash
@@ -73,10 +73,10 @@ docker run -it --name presenton -p 5000:80 -v "./app_data:/app_data" ghcr.io/pre
 docker run -it --name presenton -p 5000:80 -v "${PWD}\app_data:/app_data" ghcr.io/presenton/presenton:latest
 ```
 
-#### 2. Open Presenton
-Open http://localhost:5000 on browser of your choice to use Presenton.
+#### 2. Open Presentation Agent
+Open http://localhost:5000 on browser of your choice to use Presentation Agent.
 
-> **Note: You can replace 5000 with any other port number of your choice to run Presenton on a different port number.**
+> **Note: You can replace 5000 with any other port number of your choice to run Presentation Agent on a different port number.**
 
 ## Deployment Configurations
 
@@ -139,11 +139,11 @@ docker run -it --name presenton -p 5000:80 -e LLM="anthropic" -e ANTHROPIC_API_K
 docker run -it -p 5000:80 -e CAN_CHANGE_KEYS="false"  -e LLM="custom" -e CUSTOM_LLM_URL="http://*****" -e CUSTOM_LLM_API_KEY="*****" -e CUSTOM_MODEL="llama3.2:3b" -e IMAGE_PROVIDER="pexels" -e  PEXELS_API_KEY="********" -v "./app_data:/app_data" ghcr.io/presenton/presenton:latest
 ```
 
-#### Running Presenton with GPU Support
+#### Running Presentation Agent with GPU Support
 
 To use GPU acceleration with Ollama models, you need to install and configure the NVIDIA Container Toolkit. This allows Docker containers to access your NVIDIA GPU.
 
-Once the NVIDIA Container Toolkit is installed and configured, you can run Presenton with GPU support by adding the `--gpus=all` flag:
+Once the NVIDIA Container Toolkit is installed and configured, you can run Presentation Agent with GPU support by adding the `--gpus=all` flag:
 
 ```bash
 docker run -it --name presenton --gpus=all -p 5000:80 -e LLM="ollama" -e OLLAMA_MODEL="llama3.2:3b" -e IMAGE_PROVIDER="pexels" -e PEXELS_API_KEY="*******" -e CAN_CHANGE_KEYS="false" -v "./app_data:/app_data" ghcr.io/presenton/presenton:latest

@@ -41,7 +41,7 @@ class FontListResponse(BaseModel):
 
 def get_fonts_directory() -> str:
     """Get the fonts directory path, create if it doesn't exist"""
-    app_data_dir = get_app_data_directory_env() or "/tmp/presenton"
+    app_data_dir = get_app_data_directory_env() or "/tmp/presentation_agent"
     fonts_dir = os.path.join(app_data_dir, "fonts")
     os.makedirs(fonts_dir, exist_ok=True)
     return fonts_dir

@@ -34,7 +34,7 @@ pptx_model = PptxPresentationModel(
 
 
 def test_pptx_creator():
-    temp_dir = "/tmp/presenton"
+    temp_dir = "/tmp/presentation_agent"
     pptx_creator = PptxPresentationCreator(pptx_model, temp_dir)
     asyncio.run(pptx_creator.create_ppt())
     pptx_creator.save("debug/test.pptx")

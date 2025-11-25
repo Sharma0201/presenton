@@ -2,8 +2,8 @@ import React from 'react'
 import SettingPage from './SettingPage'
 
 export const metadata = {
-  title: 'Settings | Presenton',
-  description: 'Settings page',
+  title: 'Settings | Presentation Agent',
+  description: 'Configure your AI presentation generator settings',
 }
 const page = () => {
 

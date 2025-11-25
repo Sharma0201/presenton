@@ -5,9 +5,9 @@ import Header from "@/app/(presentation-generator)/dashboard/components/Header";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Presenton | Open Source AI presentation generator",
+  title: "Create Presentation | Presentation Agent",
   description:
-    "Open-source AI presentation generator with custom layouts, multi-model support (OpenAI, Gemini, Ollama), and PDF/PPTX export. A free Gamma alternative.",
+    "AI-powered presentation generator with custom layouts, multi-model support (OpenAI, Gemini, Ollama), and PDF/PPTX export. Create professional presentations instantly.",
   alternates: {
     canonical: "https://presenton.ai/create",
   },
@@ -24,18 +24,18 @@ export const metadata: Metadata = {
     "business presentations",
   ],
   openGraph: {
-    title: "Create Data Presentation | PresentOn",
+    title: "Create Presentation | Presentation Agent",
     description:
-      "Open-source AI presentation generator with custom layouts, multi-model support (OpenAI, Gemini, Ollama), and PDF/PPTX export. A free Gamma alternative.",
+      "AI-powered presentation generator with custom layouts, multi-model support (OpenAI, Gemini, Ollama), and PDF/PPTX export. Create professional presentations instantly.",
     type: "website",
     url: "https://presenton.ai/create",
-    siteName: "PresentOn",
+    siteName: "Presentation Agent",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Create Data Presentation | PresentOn",
+    title: "Create Presentation | Presentation Agent",
     description:
-      "Open-source AI presentation generator with custom layouts, multi-model support (OpenAI, Gemini, Ollama), and PDF/PPTX export. A free Gamma alternative.",
+      "AI-powered presentation generator with custom layouts, multi-model support (OpenAI, Gemini, Ollama), and PDF/PPTX export. Create professional presentations instantly.",
     site: "@presenton_ai",
     creator: "@presenton_ai",
   },

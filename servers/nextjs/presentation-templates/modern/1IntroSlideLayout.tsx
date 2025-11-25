@@ -24,7 +24,7 @@ const introPitchDeckSchema = z.object({
   contactWebsite: z.string().default("www.reallygreatsite.com").meta({
     description: "Contact website URL displayed in footer",
   }),
-  companyName: z.string().default("presenton").meta({
+  companyName: z.string().default("Company Name").meta({
     description: "Company name displayed in header",
   }),
   date: z.string().default("June 13, 2038").meta({

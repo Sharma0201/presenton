@@ -13,7 +13,7 @@ export const layoutDescription =
 
 // Make the schema generic: allow any label/value pairs for comparison
 const marketValidationSchema = z.object({
-  companyName: z.string().min(2).max(50).default("presenton").meta({
+  companyName: z.string().min(2).max(50).default("Company Name").meta({
     description: "Company name displayed in header",
   }),
   date: z.string().min(5).max(50).default("June 13, 2038").meta({

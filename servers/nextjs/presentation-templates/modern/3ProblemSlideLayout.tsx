@@ -83,7 +83,7 @@ const problemStatementSlideSchema = z.object({
       description:
         "List of problem categories with titles, descriptions, and optional icons",
     }),
-  companyName: z.string().min(2).max(50).default("presenton").meta({
+  companyName: z.string().min(2).max(50).default("Company Name").meta({
     description: "Company name displayed in header",
   }),
   date: z.string().min(5).max(30).default("June 13, 2038").meta({

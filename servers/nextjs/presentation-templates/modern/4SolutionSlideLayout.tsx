@@ -8,7 +8,7 @@ export const layoutDescription =
   "A slide layout designed to present a solution to previously identified problems, showcasing key aspects of the solution with sections and icons.";
 
 const solutionSlideSchema = z.object({
-  companyName: z.string().min(2).max(50).default("presenton").meta({
+  companyName: z.string().min(2).max(50).default("Company Name").meta({
     description: "Company name displayed in header",
   }),
   date: z.string().min(5).max(30).default("June 13, 2038").meta({

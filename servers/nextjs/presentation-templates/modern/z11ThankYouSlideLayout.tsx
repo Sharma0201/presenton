@@ -13,7 +13,7 @@ const thankYouSlideSchema = z.object({
   subtitle: z.string().min(0).max(100).default("").meta({
     description: "Optional subtitle or closing remark",
   }),
-  companyName: z.string().min(2).max(50).default("presenton").meta({
+  companyName: z.string().min(2).max(50).default("Company Name").meta({
     description: "Company name displayed in header",
   }),
   date: z.string().min(5).max(50).default("June 13, 2038").meta({

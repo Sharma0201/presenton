@@ -28,7 +28,7 @@ const growthStatsSchema = z
 
 // growthStats: list of dicts, each dict is { year: string, <metric1>: number, <metric2>: number, ... }
 const tractionSchema = z.object({
-  companyName: z.string().min(2).max(50).default("presenton").meta({
+  companyName: z.string().min(2).max(50).default("Company Name").meta({
     description: "Company name displayed in header",
   }),
   date: z.string().min(5).max(50).default("June 13, 2038").meta({
