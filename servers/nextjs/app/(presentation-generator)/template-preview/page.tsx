@@ -9,6 +9,8 @@ import { useLayout } from "../context/LayoutContext";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
 import { getHeader } from "../services/api/header";
 import { toast } from "sonner";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const LayoutPreview = () => {
   const {
@@ -21,6 +23,7 @@ const LayoutPreview = () => {
   } = useLayout();
   const router = useRouter();
   const pathname = usePathname();
+  const enableCustomTemplates = useSelector((state: RootState) => state.userConfig.enable_custom_templates);
 
   const [summaryMap, setSummaryMap] = useState<Record<string, { lastUpdatedAt?: number; name?: string; description?: string }>>({});
 
@@ -105,17 +108,18 @@ const LayoutPreview = () => {
           </div>
         </div>
         {/* Custom Templates */}
-        <section className="h-full pt-8 pb-8 flex justify-center items-center">
-          <div className="max-w-7xl mx-auto px-6 py-6 w-full">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Custom AI Templates</h2>
-              <button className="text-sm text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2 group" onClick={() => {
-                trackEvent(MixpanelEvent.Navigation, { from: pathname, to: `/custom-template` });
-                router.push(`/custom-template`)
-              }}>
-                Create Custom Template
-              </button>
-            </div>
+        {enableCustomTemplates && (
+          <section className="h-full pt-8 pb-8 flex justify-center items-center">
+            <div className="max-w-7xl mx-auto px-6 py-6 w-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Custom AI Templates</h2>
+                <button className="text-sm text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2 group" onClick={() => {
+                  trackEvent(MixpanelEvent.Navigation, { from: pathname, to: `/custom-template` });
+                  router.push(`/custom-template`)
+                }}>
+                  Create Custom Template
+                </button>
+              </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {customTemplatesSorted.length > 0 ? (
                 customTemplatesSorted.map((template) => {
@@ -208,6 +212,7 @@ const LayoutPreview = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* In Built Templates */}
         <section className="h-full pt-8 flex justify-center items-center">

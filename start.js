@@ -71,6 +71,7 @@ const setupUserConfigFromEnv = () => {
 
   const userConfig = {
     LLM: process.env.LLM || existingConfig.LLM,
+    ENABLE_CUSTOM_TEMPLATES: process.env.ENABLE_CUSTOM_TEMPLATES || existingConfig.ENABLE_CUSTOM_TEMPLATES || "false",
     OPENAI_API_KEY: process.env.OPENAI_API_KEY || existingConfig.OPENAI_API_KEY,
     OPENAI_MODEL: process.env.OPENAI_MODEL || existingConfig.OPENAI_MODEL,
     GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || existingConfig.GOOGLE_API_KEY,

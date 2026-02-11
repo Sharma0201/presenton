@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { setCanChangeKeys, setLLMConfig } from '@/store/slices/userConfig';
+import { setCanChangeKeys, setLLMConfig, setEnableCustomTemplates } from '@/store/slices/userConfig';
 import { hasValidLLMConfig } from '@/utils/storeHelpers';
 import { usePathname, useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
@@ -41,6 +41,11 @@ export function ConfigurationInitializer({ children }: { children: React.ReactNo
       if (!llmConfig.LLM) {
         llmConfig.LLM = 'openai';
       }
+
+      // Set enable custom templates feature flag
+      const enableCustomTemplates = llmConfig.ENABLE_CUSTOM_TEMPLATES === 'true';
+      dispatch(setEnableCustomTemplates(enableCustomTemplates));
+
       dispatch(setLLMConfig(llmConfig));
       const isValid = hasValidLLMConfig(llmConfig);
       if (isValid) {

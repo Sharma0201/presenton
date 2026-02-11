@@ -8,8 +8,12 @@ import { usePathname } from "next/navigation";
 import HeaderNav from "@/app/(presentation-generator)/components/HeaderNab";
 import { Layout, FilePlus2 } from "lucide-react";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 const Header = () => {
   const pathname = usePathname();
+  const enableCustomTemplates = useSelector((state: RootState) => state.userConfig.enable_custom_templates);
+
   return (
     <div className="bg-gradient-to-r from-blue-600 to-indigo-600 w-full shadow-xl sticky top-0 z-50">
       <Wrapper>
@@ -26,16 +30,18 @@ const Header = () => {
             </Link>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/custom-template"
-              prefetch={false}
-              onClick={() => trackEvent(MixpanelEvent.Navigation, { from: pathname, to: "/custom-template" })}
-              className="flex items-center gap-2 px-4 py-2 text-white/90 hover:bg-white/10 hover:text-white rounded-lg transition-all outline-none"
-              role="menuitem"
-            >
-              <FilePlus2 className="w-5 h-5" />
-              <span className="text-sm font-medium font-inter">Create Template</span>
-            </Link>
+            {enableCustomTemplates && (
+              <Link
+                href="/custom-template"
+                prefetch={false}
+                onClick={() => trackEvent(MixpanelEvent.Navigation, { from: pathname, to: "/custom-template" })}
+                className="flex items-center gap-2 px-4 py-2 text-white/90 hover:bg-white/10 hover:text-white rounded-lg transition-all outline-none"
+                role="menuitem"
+              >
+                <FilePlus2 className="w-5 h-5" />
+                <span className="text-sm font-medium font-inter">Create Template</span>
+              </Link>
+            )}
             <Link
               href="/template-preview"
               prefetch={false}

@@ -18,12 +18,22 @@ import { SaveLayoutModal } from "./components/SaveLayoutModal";
 import EachSlide from "./components/EachSlide/NewEachSlide";
 import { APIKeyWarning } from "./components/APIKeyWarning";
 import { trackEvent, MixpanelEvent } from "@/utils/mixpanel";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const CustomTemplatePage = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { refetch } = useLayout();
-  
+  const enableCustomTemplates = useSelector((state: RootState) => state.userConfig.enable_custom_templates);
+
+  // Redirect if feature is disabled
+  useEffect(() => {
+    if (!enableCustomTemplates) {
+      router.push('/dashboard');
+    }
+  }, [enableCustomTemplates, router]);
+
   // Custom hooks for different concerns
   const { hasRequiredKey, isRequiredKeyLoading } = useAPIKeyCheck();
   const { selectedFile, handleFileSelect, removeFile } = useFileUpload();

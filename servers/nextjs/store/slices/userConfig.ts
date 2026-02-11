@@ -3,12 +3,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserConfigState {
   can_change_keys: boolean
+  enable_custom_templates: boolean
   llm_config: LLMConfig
 }
 
 const initialState: UserConfigState = {
   llm_config: {},
   can_change_keys: false,
+  enable_custom_templates: false,
 }
 
 const userConfigSlice = createSlice({
@@ -20,9 +22,12 @@ const userConfigSlice = createSlice({
     },
     setCanChangeKeys: (state, action: PayloadAction<boolean>) => {
       state.can_change_keys = action.payload;
+    },
+    setEnableCustomTemplates: (state, action: PayloadAction<boolean>) => {
+      state.enable_custom_templates = action.payload;
     }
   },
 });
 
-export const { setLLMConfig, setCanChangeKeys } = userConfigSlice.actions;
+export const { setLLMConfig, setCanChangeKeys, setEnableCustomTemplates } = userConfigSlice.actions;
 export default userConfigSlice.reducer;

@@ -6,6 +6,8 @@ import TemplateLayouts from "./TemplateLayouts";
 import { Template } from "../types/index";
 
 import { getHeader } from "../../services/api/header";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 interface TemplateSelectionProps {
   selectedTemplate: Template | null;
   onSelectTemplate: (template: Template) => void;
@@ -23,9 +25,15 @@ const TemplateSelection: React.FC<TemplateSelectionProps> = ({
     loading
   } = useLayout();
 
+  const enableCustomTemplates = useSelector((state: RootState) => state.userConfig.enable_custom_templates);
   const [summaryMap, setSummaryMap] = React.useState<Record<string, { lastUpdatedAt?: number; name?: string; description?: string }>>({});
 
   useEffect(() => {
+    // Only fetch custom templates if feature is enabled
+    if (!enableCustomTemplates) {
+      return;
+    }
+
     // Fetch custom templates summary to get last_updated_at and template meta for sorting and display
     fetch(`/api/v1/ppt/template-management/summary`, {
       headers: getHeader(),
@@ -46,7 +54,7 @@ const TemplateSelection: React.FC<TemplateSelectionProps> = ({
         setSummaryMap(map);
       })
       .catch(() => setSummaryMap({}));
-  }, []);
+  }, [enableCustomTemplates]);
 
   const templates: Template[] = React.useMemo(() => {
     const templates = getAllTemplateIDs();
@@ -180,27 +188,29 @@ const TemplateSelection: React.FC<TemplateSelectionProps> = ({
       </div>
 
       {/* Custom AI Templates */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-900">Custom AI Templates</h3>
+      {enableCustomTemplates && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-900">Custom AI Templates</h3>
+          </div>
+          {customTemplates.length === 0 ? (
+            <div className="text-sm text-gray-600 py-2">
+              No custom templates. Create one from "All Templates" menu.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {customTemplates.map((template) => (
+                <TemplateLayouts
+                  key={template.id}
+                  template={template}
+                  onSelectTemplate={handleTemplateSelection}
+                  selectedTemplate={selectedTemplate}
+                />
+              ))}
+            </div>
+          )}
         </div>
-        {customTemplates.length === 0 ? (
-          <div className="text-sm text-gray-600 py-2">
-            No custom templates. Create one from "All Templates" menu.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {customTemplates.map((template) => (
-              <TemplateLayouts
-                key={template.id}
-                template={template}
-                onSelectTemplate={handleTemplateSelection}
-                selectedTemplate={selectedTemplate}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };
