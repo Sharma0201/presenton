@@ -24,7 +24,14 @@ from utils.db_utils import get_database_url_and_connect_args
 
 database_url, connect_args = get_database_url_and_connect_args()
 
-sql_engine: AsyncEngine = create_async_engine(database_url, connect_args=connect_args)
+sql_engine: AsyncEngine = create_async_engine(
+    database_url,
+    connect_args=connect_args,
+    pool_size=20,  # Maximum number of connections in the pool
+    max_overflow=10,  # Allow up to 10 additional connections beyond pool_size
+    pool_pre_ping=True,  # Test connections before using to detect disconnects
+    pool_recycle=3600,  # Recycle connections after 1 hour to prevent stale connections
+)
 async_session_maker = async_sessionmaker(sql_engine, expire_on_commit=False)
 
 

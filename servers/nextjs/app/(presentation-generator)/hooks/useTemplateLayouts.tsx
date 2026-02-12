@@ -5,6 +5,7 @@ import { useLayout } from "../context/LayoutContext";
 import EditableLayoutWrapper from "../components/EditableLayoutWrapper";
 import SlideErrorBoundary from "../components/SlideErrorBoundary";
 import TiptapTextReplacer from "../components/TiptapTextReplacer";
+import MarkdownTextRenderer from "../components/MarkdownTextRenderer";
 import { updateSlideContent } from "../../../store/slices/presentationGeneration";
 import { Loader2 } from "lucide-react";
 
@@ -83,9 +84,14 @@ export const useTemplateLayouts = () => {
         );
       }
       return (
-        <SlideErrorBoundary label={`Slide ${slide.index + 1}`}>
-          <Layout data={slide.content} />
-        </SlideErrorBoundary>
+        <MarkdownTextRenderer
+          key={slide.id}
+          slideData={slide.content}
+        >
+          <SlideErrorBoundary label={`Slide ${slide.index + 1}`}>
+            <Layout data={slide.content} />
+          </SlideErrorBoundary>
+        </MarkdownTextRenderer>
       );
     };
   }, [getTemplateLayout, dispatch]);
