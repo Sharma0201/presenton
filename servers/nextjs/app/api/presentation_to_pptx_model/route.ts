@@ -132,12 +132,23 @@ async function postProcessSlidesAttributes(
 ) {
   for (const [index, slideAttributes] of slidesAttributes.entries()) {
     for (const element of slideAttributes.elements) {
+      // Screenshot SVG/canvas/table elements
       if (element.should_screenshot) {
         const screenshotPath = await screenshotElement(element, screenshotsDir);
         element.imageSrc = screenshotPath;
         element.should_screenshot = false;
         element.objectFit = "cover";
         element.element = undefined;
+      }
+
+      // Convert SVG image sources to PNG
+      if (element.imageSrc && element.imageSrc.endsWith('.svg')) {
+        try {
+          const pngPath = await convertSvgImageToPng(element.imageSrc, screenshotsDir, element.position);
+          element.imageSrc = pngPath;
+        } catch (error) {
+          console.error(`Failed to convert SVG image: ${error}`);
+        }
       }
     }
     slideAttributes.speakerNote = speakerNotes[index];
@@ -213,24 +224,121 @@ async function screenshotElement(
   return screenshotPath;
 }
 
-const convertSvgToPng = async (element_attibutes: ElementAttributes) => {
-  const svgHtml =
-    (await element_attibutes.element?.evaluate((el) => {
-      // Apply font color
-      const fontColor = window.getComputedStyle(el).color;
-      (el as HTMLElement).style.color = fontColor;
+/**
+ * Convert an SVG image URL to PNG
+ * Used for <img src="icon.svg"> or background-image: url(icon.svg)
+ */
+async function convertSvgImageToPng(
+  svgUrl: string,
+  screenshotsDir: string,
+  position: ElementAttributes["position"]
+): Promise<string> {
+  const pngPath = path.join(screenshotsDir, `${uuidv4()}.png`);
 
-      return el.outerHTML;
-    })) || "";
+  let svgBuffer: Buffer;
+
+  // Check if it's a local file or URL
+  if (svgUrl.startsWith('http://') || svgUrl.startsWith('https://')) {
+    // Download from URL
+    const response = await fetch(svgUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch SVG: ${response.statusText}`);
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    svgBuffer = Buffer.from(arrayBuffer);
+  } else if (svgUrl.startsWith('/')) {
+    // Local file path (container path or app_data path)
+    const localPath = svgUrl.replace(/^\/app_data\//, '/app_data/');
+    if (fs.existsSync(localPath)) {
+      svgBuffer = fs.readFileSync(localPath);
+    } else {
+      // Try without /app_data prefix
+      const altPath = svgUrl.startsWith('/app_data/')
+        ? svgUrl.replace(/^\/app_data\//, '/app/')
+        : `/app${svgUrl}`;
+      svgBuffer = fs.existsSync(altPath)
+        ? fs.readFileSync(altPath)
+        : fs.readFileSync(svgUrl);
+    }
+  } else {
+    throw new Error(`Unsupported SVG URL format: ${svgUrl}`);
+  }
+
+  // Extract dimensions
+  const svgString = svgBuffer.toString();
+  let targetWidth = position?.width || 24;
+  let targetHeight = position?.height || 24;
+
+  // Try to extract viewBox from SVG
+  const viewBoxMatch = svgString.match(/viewBox=["']([^"']+)["']/);
+  if (viewBoxMatch) {
+    const parts = viewBoxMatch[1].split(/\s+/).map(Number);
+    if (parts.length === 4 && parts[2] > 0 && parts[3] > 0) {
+      targetWidth = parts[2];
+      targetHeight = parts[3];
+    }
+  }
+
+  // Convert using Sharp
+  const pngBuffer = await sharp(svgBuffer)
+    .resize(Math.round(targetWidth), Math.round(targetHeight))
+    .toFormat('png')
+    .toBuffer();
+
+  fs.writeFileSync(pngPath, pngBuffer);
+  return pngPath;
+}
+
+const convertSvgToPng = async (element_attibutes: ElementAttributes) => {
+  const svgData = await element_attibutes.element?.evaluate((el) => {
+    // Apply font color
+    const fontColor = window.getComputedStyle(el).color;
+    (el as HTMLElement).style.color = fontColor;
+
+    // Extract viewBox or width/height attributes from SVG
+    const svgEl = el as SVGSVGElement;
+    const viewBox = svgEl.getAttribute('viewBox');
+    const widthAttr = svgEl.getAttribute('width');
+    const heightAttr = svgEl.getAttribute('height');
+
+    return {
+      html: el.outerHTML,
+      viewBox,
+      widthAttr,
+      heightAttr
+    };
+  });
+
+  const svgHtml = svgData?.html || "";
+
+  // Determine target dimensions
+  let targetWidth = Math.round(element_attibutes.position!.width!);
+  let targetHeight = Math.round(element_attibutes.position!.height!);
+
+  // If dimensions are zero or invalid, try to extract from viewBox or attributes
+  if (targetWidth === 0 || targetHeight === 0 || !targetWidth || !targetHeight) {
+    if (svgData?.viewBox) {
+      const viewBoxParts = svgData.viewBox.split(/\s+/).map(Number);
+      if (viewBoxParts.length === 4) {
+        targetWidth = viewBoxParts[2] || 24;
+        targetHeight = viewBoxParts[3] || 24;
+      }
+    } else if (svgData?.widthAttr && svgData?.heightAttr) {
+      targetWidth = parseFloat(svgData.widthAttr) || 24;
+      targetHeight = parseFloat(svgData.heightAttr) || 24;
+    } else {
+      // Default icon size
+      targetWidth = 24;
+      targetHeight = 24;
+    }
+  }
 
   const svgBuffer = Buffer.from(svgHtml);
   const pngBuffer = await sharp(svgBuffer)
-    .resize(
-      Math.round(element_attibutes.position!.width!),
-      Math.round(element_attibutes.position!.height!)
-    )
+    .resize(Math.round(targetWidth), Math.round(targetHeight))
     .toFormat("png")
     .toBuffer();
+
   return pngBuffer;
 };
 
@@ -344,13 +452,19 @@ async function getAllChildElementsAttributes({
       };
     }
 
-    // Ignore elements with no size (width or height)
+    // Check if this is a special element type that should be preserved even with zero size
+    const isSpecialElement =
+      attributes.tagName === "svg" ||
+      attributes.tagName === "canvas" ||
+      attributes.tagName === "table";
+
+    // Ignore elements with no size (width or height), except special elements
     if (
       attributes.position === undefined ||
       attributes.position.width === undefined ||
       attributes.position.height === undefined ||
-      attributes.position.width === 0 ||
-      attributes.position.height === 0
+      (!isSpecialElement &&
+        (attributes.position.width === 0 || attributes.position.height === 0))
     ) {
       continue;
     }
