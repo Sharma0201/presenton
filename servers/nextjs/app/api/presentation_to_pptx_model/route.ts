@@ -502,8 +502,9 @@ async function getAllChildElementsAttributes({
 
     allResults.push({ attributes, depth });
 
-    // If the element is a canvas, or table, we don't need to go deeper
-    if (attributes.should_screenshot && attributes.tagName !== "svg") {
+    // Don't recurse into elements marked for screenshot (SVG, canvas, table)
+    // This prevents duplicate labels/legends on charts
+    if (attributes.should_screenshot) {
       continue;
     }
 
