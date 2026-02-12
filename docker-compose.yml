@@ -34,6 +34,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        INSTALL_OLLAMA: ${INSTALL_OLLAMA:-false}
     ports:
       # You can replace 5000 with any other port number of your choice to run Presentation Agent on a different port number.
       - "5000:80"
@@ -83,6 +85,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        INSTALL_OLLAMA: ${INSTALL_OLLAMA:-false}
     deploy:
       resources:
         reservations:
@@ -138,6 +142,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      args:
+        INSTALL_OLLAMA: ${INSTALL_OLLAMA:-false}
     ports:
       - "5000:80"
     volumes:
@@ -186,6 +192,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      args:
+        INSTALL_OLLAMA: ${INSTALL_OLLAMA:-false}
     deploy:
       resources:
         reservations:

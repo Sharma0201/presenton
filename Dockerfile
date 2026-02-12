@@ -23,9 +23,13 @@ ENV APP_DATA_DIRECTORY=/app_data
 ENV TEMP_DIRECTORY=/tmp/presenton
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
+# Build argument to optionally install Ollama (default: false)
+ARG INSTALL_OLLAMA=false
 
-# Install ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
+# Install ollama (conditional based on build arg)
+RUN if [ "$INSTALL_OLLAMA" = "true" ]; then \
+        curl -fsSL https://ollama.com/install.sh | sh; \
+    fi
 
 # Install dependencies for FastAPI
 RUN pip install aiohttp aiomysql aiosqlite asyncpg fastapi[standard] \
