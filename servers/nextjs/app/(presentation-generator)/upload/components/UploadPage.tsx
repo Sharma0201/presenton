@@ -224,7 +224,7 @@ const UploadPage = () => {
       />
       <Button
         onClick={handleGeneratePresentation}
-        className="w-full rounded-[32px] flex items-center justify-center py-6 bg-[#5141e5] text-white font-instrument_sans font-semibold text-xl hover:bg-[#5141e5]/80 transition-colors duration-300"
+        className="w-full rounded-[32px] flex items-center justify-center py-6 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-instrument_sans font-semibold text-xl hover:from-teal-700 hover:to-cyan-700 hover:shadow-lg hover:shadow-teal-500/30 transition-all duration-300"
         data-testid="next-button"
       >
         <span>Next</span>

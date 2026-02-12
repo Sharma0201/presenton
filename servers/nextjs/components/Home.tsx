@@ -147,13 +147,13 @@ export default function Home() {
         {/* Branding Header */}
         <div className="text-center mb-6 mt-8 flex-shrink-0">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-teal-600 via-cyan-600 to-teal-700 shadow-lg">
               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
               </svg>
             </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-600 via-cyan-600 to-teal-700 bg-clip-text text-transparent mb-2">
             Presentation Agent
           </h1>
           <p className="text-gray-600 text-base">
@@ -253,7 +253,7 @@ export default function Home() {
             disabled={buttonState.isDisabled}
             className={`w-full font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg ${buttonState.isDisabled
               ? "bg-gray-400 cursor-not-allowed opacity-60"
-              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl hover:scale-[1.02] focus:ring-4 focus:ring-blue-300"
+              : "bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 hover:shadow-xl hover:shadow-teal-500/30 hover:scale-[1.02] focus:ring-4 focus:ring-teal-300"
               } text-white text-base`}
           >
             {buttonState.isLoading ? (

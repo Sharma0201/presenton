@@ -328,18 +328,18 @@ export default function LLMProviderSelection({
           })()}
 
         {/* Model Information */}
-        <div className="mb-8 p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-100 shadow-sm">
+        <div className="mb-8 p-5 bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl border-2 border-teal-100 shadow-sm">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Info className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-teal-100 rounded-lg">
+              <Info className="w-5 h-5 text-teal-600" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-blue-900 mb-1.5">
+              <h3 className="text-sm font-semibold text-teal-900 mb-1.5">
                 Selected Models
               </h3>
-              <p className="text-sm text-blue-800 leading-relaxed">
+              <p className="text-sm text-teal-800 leading-relaxed">
                 Using{" "}
-                <span className="font-semibold text-blue-900">
+                <span className="font-semibold text-teal-900">
                   {llmConfig.LLM === "ollama"
                     ? llmConfig.OLLAMA_MODEL ?? "xxxxx"
                     : llmConfig.LLM === "custom"
